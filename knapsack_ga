@@ -1,0 +1,91 @@
+# Read in the data from the CSV file
+items = []
+with open('C:\\Users\\Arvin Asgari\\Desktop\\csv2.csv', 'r') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        items.append((row[0], int(row[1]), int(row[2])))
+
+
+# Define the genetic algorithm
+def genetic_algorithm(items, max_weight):
+    population = initialize_population(items, max_weight)
+    for i in range(100):
+        population = next_generation(population, items, max_weight)
+    return best_individual(population)
+
+
+# Initialize the population
+def initialize_population(items, max_weight):
+    population = []
+    for i in range(100):
+        individual = [random.randint(0, 1) for i in range(len(items))]
+        population.append(individual)
+    return population
+
+
+# Create the next generation
+def next_generation(population, items, max_weight):
+    new_population = []
+    for i in range(len(population)):
+        parent1 = select_individual(population)
+        parent2 = select_individual(population)
+        child = crossover(parent1, parent2)
+        child = mutate(child)
+        new_population.append(child)
+    return new_population
+
+
+# Select an individual from the population
+def select_individual(population):
+    return random.choice(population)
+
+
+# Perform crossover on two individuals
+def crossover(parent1, parent2):
+    point = random.randint(0, len(parent1) - 1)
+    child = parent1[:point] + parent2[point:]
+    return child
+
+
+# Perform mutation on an individual
+def mutate(individual):
+    for i in range(len(individual)):
+        if random.random() < 0.1:
+            individual[i] = 1 - individual[i]
+    return individual
+
+
+# Find the best individual
+def best_individual(population):
+    best_fitness = 0
+    best_individual = None
+    for individual in population:
+        fitness = fitness_function(individual, items, max_weight)
+        if fitness > best_fitness:
+            best_fitness = fitness
+            best_individual = individual
+    return best_individual
+
+
+# Evaluate the fitness of an individual
+def fitness_function(individual, items, max_weight):
+    weight = 0
+    value = 0
+    for i in range(len(individual)):
+        if individual[i] == 1:
+            weight += items[i][1]
+            value += items[i][2]
+    if weight > max_weight:
+        return 0
+    return value
+
+
+# Main function
+if __name__ == '__main__':
+    max_weight = int(input("Enter the maximum weight: "))
+    result = genetic_algorithm(items, max_weight)
+    print("Selected items:")
+    for i in range(len(result)):
+        if result[i] == 1:
+            print(items[i][0])
+#End
